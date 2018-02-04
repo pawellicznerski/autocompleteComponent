@@ -7,9 +7,13 @@
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
+    "build-css": "^0.2.0",
+    "node-sass-chokidar": "0.0.3",
     "react-scripts": "1.1.0"
   },
   "scripts": {
+    "build-css": "node-sass-chokidar src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",

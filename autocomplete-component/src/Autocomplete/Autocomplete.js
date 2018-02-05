@@ -8,7 +8,6 @@ export default class Autocomplete extends Component{
     super(props);
     this.state={
       inputValue:"",
-      inputValueCode:"",
       countries:countries,
       showDatalist:false
     }
@@ -19,7 +18,6 @@ export default class Autocomplete extends Component{
     const target = e.target;
     let value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
-    // console.log("inputValueCode",e.target);
     this.setState({
        [name]: value,
      });
@@ -62,6 +60,7 @@ export default class Autocomplete extends Component{
      });
   }
   handleOnBlur(){
+    console.log("blur");
     const res = this.state.inputValue.slice(0,-5);
     console.log("country",res);
     const leaveValue = _.find(countries, el=> el.name===res)?true:_.find(countries, el=> el.name===this.state.inputValue.replace(/\s+$/, ''));
@@ -78,33 +77,57 @@ export default class Autocomplete extends Component{
           showDatalist:false
         });
      }
-
    }
 
    handleClick(name){
      this.setState({
        inputValue:name,
      })
+   }
 
+   handleKeyPress(e){
+     if(e.keyCode == 9 || e.key=="Enter" ){
+       const fullValue =this.state.countries[0].name +" ("+ this.state.countries[0].code+")";
+       this.setDatalist(this.state.inputValue);
+       this.setState({
+         inputValue:fullValue,
+       })
+     }
    }
 
   render(){
     const  { inputValue } = this.state;
     const  { countries } = this.state;
     return (
-      <div>
+      <div
+        className={classNames({
+          'autocomplete':true,
+        })}
+        className="autocomplete">
         <input
+          className={classNames({
+            'autocomplete__input':true,
+            'autocomplete__input_focused':this.state.showDatalist,
+          })}
           id="inputValue"
           name='inputValue'
           value={this.state.inputValue}
           onChange={this.handleInputChange.bind(this)}
           onBlur={this.handleOnBlur.bind(this)}
           onFocus={this.handleOnFocus.bind(this)}
+          onKeyDown={this.handleKeyPress.bind(this)}
         ></input>
-        <div>
+        <div
+          className={classNames({
+            'autocomplete__datalist':true,
+            'autocomplete__datalist_show':this.state.showDatalist,
+          })}>
           {
             countries.map((item, index)=>{ return (
               <div
+                className={classNames({
+                  'autocomplete__datalist__item':true,
+                })}
                 key={index}
                 onMouseDown={()=>this.handleClick(item.name+' '+'('+`${item.code}`+')')}>
                 {item.name+' '+'('+`${item.code}`+')'}

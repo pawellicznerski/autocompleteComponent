@@ -1,0 +1,28 @@
+.autocomplete{
+  width:300px;
+  height:300px;
+  padding: 30px;
+  &__input{
+    width:300px;
+    height:40px;
+    padding: 3px;
+    font-size: 17px;
+    &_focused{
+      border: 2px solid green;
+    }
+  }
+  &__datalist{
+    margin-top: 5px;
+    height: 100px;
+    overflow-x: auto;
+    width: 300px;
+    display: none;
+    &_show{
+      display: block;
+    }
+    &__item{
+      font-size: 17px;
+      cursor: pointer;
+    }
+  }
+}

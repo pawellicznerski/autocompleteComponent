@@ -1,6 +1,7 @@
 import React, { Component} from 'react';
 import  countries from './../countries.json';
 import _ from "lodash";
+import classNames from 'classnames/bind';
 
 export default class Autocomplete extends Component{
   constructor(props){
@@ -9,26 +10,25 @@ export default class Autocomplete extends Component{
       inputValue:"",
       inputValueCode:"",
       countries:countries,
+      showDatalist:false
     }
   }
 
   handleInputChange =(e)=>{
     e.preventDefault();
     const target = e.target;
-    let value = target.type === 'checkbox' ? target.checked : target.value;//potrzebne w razie dolączenia checkbox-a
+    let value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
-    const inputValueCode = _.find(countries, el=> el.name===name? el.code:null);
-    console.log("inputValueCode",e.target);
+    // console.log("inputValueCode",e.target);
     this.setState({
        [name]: value,
-       inputValueCode:inputValueCode
-      //  countries: filteredOptions,
      });
-
      if(value){
        this.setDatalist(value);
-     }
-     console.log(this.state.inputValue);
+     }else{
+       this.setState({countries: countries});
+      }
+    //  console.log(this.state.inputValue);
   } //end of handleInputChange
 
   setDatalist(value){
@@ -58,45 +58,60 @@ export default class Autocomplete extends Component{
   handleOnFocus(){
     this.setState({
        countries: countries,
+       showDatalist:true
      });
   }
   handleOnBlur(){
-    console.log(this.state.inputValue);
-    const leaveValue = _.find(countries, el=> el.name===this.state.inputValue);
-    console.log(leaveValue);
+    const res = this.state.inputValue.slice(0,-5);
+    console.log("country",res);
+    const leaveValue = _.find(countries, el=> el.name===res)?true:_.find(countries, el=> el.name===this.state.inputValue.replace(/\s+$/, ''));
+    console.log("leaveValue:",leaveValue);
     if(leaveValue){
       this.setState({
          countries: countries,
+         showDatalist:false
        });
      }else{
        this.setState({
           countries: countries,
-          inputValue:''
+          inputValue:'',
+          showDatalist:false
         });
      }
 
    }
 
-  render(){
+   handleClick(name){
+     this.setState({
+       inputValue:name,
+     })
 
+   }
+
+  render(){
+    const  { inputValue } = this.state;
+    const  { countries } = this.state;
     return (
       <div>
         <input
           id="inputValue"
-          list="countries"
           name='inputValue'
           value={this.state.inputValue}
           onChange={this.handleInputChange.bind(this)}
           onBlur={this.handleOnBlur.bind(this)}
           onFocus={this.handleOnFocus.bind(this)}
         ></input>
-        <datalist id='countries'>
+        <div>
           {
-            this.state.countries.map((item, index)=>{
-              return <option value={item.name} key={index}>({item.code})</option>
+            countries.map((item, index)=>{ return (
+              <div
+                key={index}
+                onMouseDown={()=>this.handleClick(item.name+' '+'('+`${item.code}`+')')}>
+                {item.name+' '+'('+`${item.code}`+')'}
+              </div>)
             })
           }
-        </datalist>
+        </div>
       </div>
     )
   }

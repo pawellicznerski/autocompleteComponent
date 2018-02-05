@@ -1,44 +1,59 @@
 import React, { Component} from 'react';
 import  countries from './../countries.json';
+import _ from "lodash";
 
 export default class Autocomplete extends Component{
   constructor(props){
     super(props);
     this.state={
       inputValue:"",
+      inputValueCode:"",
       countries:countries,
     }
   }
+
   handleInputChange =(e)=>{
     e.preventDefault();
     const target = e.target;
-    const value = target.type === 'checkbox' ? target.checked : target.value;//potrzebne w razie dolączenia checkbox-a
+    let value = target.type === 'checkbox' ? target.checked : target.value;//potrzebne w razie dolączenia checkbox-a
     const name = target.name;
-    // e.pattern = `[\\w\\s+#]{${value.length}}`;
+    const inputValueCode = _.find(countries, el=> el.name===name? el.code:null);
+    console.log("inputValueCode",e.target);
+    this.setState({
+       [name]: value,
+       inputValueCode:inputValueCode
+      //  countries: filteredOptions,
+     });
 
+     if(value){
+       this.setDatalist(value);
+     }
+     console.log(this.state.inputValue);
+  } //end of handleInputChange
+
+  setDatalist(value){
     let filteredOptions = [];
-
     for (let i = 0;i<countries.length;i++) { // this is the idea of creating div//
         const item = countries[i];
-        console.log(item.name,value, item.name.indexOf(value));
-        if (item.name.indexOf(value) == 0) {
+        const valueIgnoreCase = value.toLowerCase();
+        const nameIgnoreCase = item.name.toLowerCase();
+        const codeIgnoreCase = item.code.toLowerCase();
+        if (nameIgnoreCase.indexOf(valueIgnoreCase) == 0) {
             filteredOptions.push({
                 name: item.name,
                 code: item.code
             });
-        } else if (item.code.indexOf(value) == 0) {
+        } else if (codeIgnoreCase.indexOf(valueIgnoreCase) == 0) {
             filteredOptions.push({
                 name: item.name,
                 code: item.code
             });
         }
     }
-
     this.setState({
-       [name]: value,
        countries: filteredOptions,
      });
-  } //end of handleInputChange
+  }
 
   handleOnFocus(){
     this.setState({
@@ -46,14 +61,22 @@ export default class Autocomplete extends Component{
      });
   }
   handleOnBlur(){
-    this.setState({
-       countries: countries,
-       inputValue:''
-     });
+    console.log(this.state.inputValue);
+    const leaveValue = _.find(countries, el=> el.name===this.state.inputValue);
+    console.log(leaveValue);
+    if(leaveValue){
+      this.setState({
+         countries: countries,
+       });
+     }else{
+       this.setState({
+          countries: countries,
+          inputValue:''
+        });
+     }
+
    }
- //  document.querySelector("#inputValue")
- // .oninput = function() {
- //   this.pattern = `[//w//s+#]{${this.value.length}}`;
+
   render(){
 
     return (
@@ -74,7 +97,6 @@ export default class Autocomplete extends Component{
             })
           }
         </datalist>
-        <p>{this.state.inputValue}</p>
       </div>
     )
   }
